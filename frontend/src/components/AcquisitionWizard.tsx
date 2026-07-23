@@ -70,19 +70,25 @@ export default function AcquisitionWizard({
     filterActive: false,
   });
 
+  const stabilizationDuration = 90;
+  const recordingDuration = 300;
+
   // Step 4: Stabilization state
   const [stabilizationProgress, setStabilizationProgress] = useState(0);
-  const [stabilizationSeconds, setStabilizationSeconds] = useState(90);
+  const [stabilizationSeconds, setStabilizationSeconds] = useState(stabilizationDuration);
 
   // Step 5: Recording state
-  const [recordingSeconds, setRecordingSeconds] = useState(300);
+  const [recordingSeconds, setRecordingSeconds] = useState(recordingDuration);
   const [isRecordingActive, setIsRecordingActive] = useState(false);
   const [sampleCount, setSampleCount] = useState(0);
 
   // Animation / Interval Ref
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const stabilizationTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const serialPortRef = useRef<any>(null);
   const previousStepRef = useRef<number>(1);
+  const stabilizationSecondsRef = useRef(stabilizationSeconds);
+  const recordingSecondsRef = useRef(recordingSeconds);
   const activeReadingsRef = useRef<LiveDataPoint[]>([]);
   const sessionSavedRef = useRef(false);
 
@@ -194,32 +200,51 @@ export default function AcquisitionWizard({
     previousStepRef.current = currentStep;
   }, [currentStep, onSetActiveReadings]);
 
+  useEffect(() => {
+    stabilizationSecondsRef.current = stabilizationSeconds;
+  }, [stabilizationSeconds]);
+
+  useEffect(() => {
+    recordingSecondsRef.current = recordingSeconds;
+  }, [recordingSeconds]);
+
   // Step 4: Stabilization effect
   useEffect(() => {
-    let interval: ReturnType<typeof setInterval> | undefined;
-
-    if (currentStep === 4 && stabilizationSeconds > 0) {
-      interval = setInterval(() => {
-        setStabilizationSeconds((prev) => {
-          const next = prev - 1;
-          setStabilizationProgress(Math.floor(((90 - next) / 90) * 100));
-
-          if (next <= 0) {
-            setCurrentStep(5);
-            setIsRecordingActive(true);
-          }
-
-          return next;
-        });
-      }, 1000);
+    if (currentStep !== 4) {
+      if (stabilizationTimerRef.current) {
+        clearInterval(stabilizationTimerRef.current);
+        stabilizationTimerRef.current = null;
+      }
+      return;
     }
 
+    if (stabilizationSecondsRef.current <= 0) {
+      return;
+    }
+
+    stabilizationTimerRef.current = setInterval(() => {
+      setStabilizationSeconds((prev) => {
+        const next = prev - 1;
+        const progress = Math.max(0, Math.min(100, Math.round(((stabilizationDuration - next) / stabilizationDuration) * 100)));
+        setStabilizationProgress(progress);
+
+        if (next <= 0) {
+          setCurrentStep(5);
+          setIsRecordingActive(true);
+          return 0;
+        }
+
+        return next;
+      });
+    }, 1000);
+
     return () => {
-      if (interval) {
-        clearInterval(interval);
+      if (stabilizationTimerRef.current) {
+        clearInterval(stabilizationTimerRef.current);
+        stabilizationTimerRef.current = null;
       }
     };
-  }, [currentStep, stabilizationSeconds]);
+  }, [currentStep]);
 
   // Step 5: Recording effect
   useEffect(() => {
@@ -231,7 +256,7 @@ export default function AcquisitionWizard({
       return;
     }
 
-    if (!isRecordingActive || recordingSeconds <= 0) {
+    if (!isRecordingActive || recordingSecondsRef.current <= 0) {
       if (timerRef.current) {
         clearInterval(timerRef.current);
         timerRef.current = null;
@@ -263,7 +288,7 @@ export default function AcquisitionWizard({
         timerRef.current = null;
       }
     };
-  }, [currentStep, isRecordingActive, recordingSeconds, onSessionFinished, participant]);
+  }, [currentStep, isRecordingActive, onSessionFinished, participant]);
 
   // Complete session and save
   const handleSaveAndFinish = () => {
@@ -274,9 +299,9 @@ export default function AcquisitionWizard({
 
   const resetWizard = () => {
     setCurrentStep(1);
-    setStabilizationSeconds(90);
+    setStabilizationSeconds(stabilizationDuration);
     setStabilizationProgress(0);
-    setRecordingSeconds(300);
+    setRecordingSeconds(recordingDuration);
     setSampleCount(0);
     setIsRecordingActive(false);
     activeReadingsRef.current = [];
