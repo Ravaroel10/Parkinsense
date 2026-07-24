@@ -102,25 +102,37 @@ export default function AcquisitionWizard({
       return Number.isFinite(parsed) ? parsed : fallback;
     };
 
+    const getFirstNumber = (keys: string[], fallback = 0) => {
+      for (const key of keys) {
+        const value = (payload as Record<string, unknown>)[key];
+        const numericValue = toNumber(value, fallback);
+        if (numericValue !== fallback || value === 0) {
+          return numericValue;
+        }
+      }
+
+      return fallback;
+    };
+
     return {
       timestamp: new Date().toLocaleTimeString('en-US', { hour12: false }),
       elapsed: 0,
       s1Gas: toNumber(payload.s1Gas),
       s1Temp: toNumber(payload.s1Temp),
       s1Hum: toNumber(payload.s1Hum),
-      s1Press: toNumber((payload as Record<string, unknown>).s1Press ?? (payload as Record<string, unknown>).s1Pres),
+      s1Press: getFirstNumber(['s1Press', 's1Pres', 's1Pressure', 'pressure1', 'press1', 'pressure']),
       s2Gas: toNumber(payload.s2Gas),
       s2Temp: toNumber(payload.s2Temp),
       s2Hum: toNumber(payload.s2Hum),
-      s2Press: toNumber((payload as Record<string, unknown>).s2Press ?? (payload as Record<string, unknown>).s2Pres),
+      s2Press: getFirstNumber(['s2Press', 's2Pres', 's2Pressure', 'pressure2', 'press2']),
       s3Gas: toNumber(payload.s3Gas),
       s3Temp: toNumber(payload.s3Temp),
       s3Hum: toNumber(payload.s3Hum),
-      s3Press: toNumber((payload as Record<string, unknown>).s3Press ?? (payload as Record<string, unknown>).s3Pres),
+      s3Press: getFirstNumber(['s3Press', 's3Pres', 's3Pressure', 'pressure3', 'press3']),
       s4Gas: toNumber(payload.s4Gas),
       s4Temp: toNumber(payload.s4Temp),
       s4Hum: toNumber(payload.s4Hum),
-      s4Press: toNumber((payload as Record<string, unknown>).s4Press ?? (payload as Record<string, unknown>).s4Pres),
+      s4Press: getFirstNumber(['s4Press', 's4Pres', 's4Pressure', 'pressure4', 'press4']),
     } as LiveDataPoint;
   };
 
