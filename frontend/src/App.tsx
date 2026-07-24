@@ -1181,6 +1181,16 @@ const handleDeleteDataset = async (id: string) => {
                   </div>
                 </div>
 
+                <div className={currentView === 'Acquisition' ? 'mb-6' : 'hidden'}>
+                  <AcquisitionWizard
+                    onSessionFinished={handleSessionFinished}
+                    isDeviceConnected={isDeviceConnected}
+                    onSetDeviceConnected={setIsDeviceConnected}
+                    activeReadings={activeReadings}
+                    onSetActiveReadings={setActiveReadings}
+                  />
+                </div>
+
                 {/* Switch Workspace Panels with Transitions */}
                 <AnimatePresence mode="wait">
                   <motion.div
@@ -1257,17 +1267,6 @@ const handleDeleteDataset = async (id: string) => {
                       <div className="space-y-6">
                         <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
                           
-                          {/* 6-Step Wizard */}
-                          <div className="xl:col-span-8">
-                            <AcquisitionWizard
-                              onSessionFinished={handleSessionFinished}
-                              isDeviceConnected={isDeviceConnected}
-                              onSetDeviceConnected={setIsDeviceConnected}
-                              activeReadings={activeReadings}
-                              onSetActiveReadings={setActiveReadings}
-                            />
-                          </div>
-
                           {/* Real-Time Live Telemetry Graph on Right during active recording */}
                           <div className="xl:col-span-4 flex flex-col justify-between h-full space-y-6">
                             <div className="flex-1">

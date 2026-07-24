@@ -89,10 +89,10 @@ export default function RawDataTable({ data, onClear }: RawDataTableProps) {
     const rows = data.map((item) => [
       item.timestamp,
       item.elapsed,
-      item.s1Gas, item.s1Temp, item.s1Hum, item.s1Pres,
-      item.s2Gas, item.s2Temp, item.s2Hum, item.s2Pres,
-      item.s3Gas, item.s3Temp, item.s3Hum, item.s3Pres,
-      item.s4Gas, item.s4Temp, item.s4Hum, item.s4Pres,
+      item.s1Gas, item.s1Temp, item.s1Hum, item.s1Press ?? 0,
+      item.s2Gas, item.s2Temp, item.s2Hum, item.s2Press ?? 0,
+      item.s3Gas, item.s3Temp, item.s3Hum, item.s3Press ?? 0,
+      item.s4Gas, item.s4Temp, item.s4Hum, item.s4Press ?? 0,
     ]);
 
     const csvContent =
@@ -317,7 +317,7 @@ export default function RawDataTable({ data, onClear }: RawDataTableProps) {
                     <td className="p-3 text-zinc-600 dark:text-zinc-400">{row.s1Hum}%</td>
                   )}
                   {(paramFilter === 'all' || paramFilter === 'pres') && (
-                    <td className="p-3 text-zinc-500">{row.s1Pres}</td>
+                    <td className="p-3 text-zinc-500">{row.s1Press ?? 0}</td>
                   )}
 
                   {/* S2 */}
@@ -331,7 +331,7 @@ export default function RawDataTable({ data, onClear }: RawDataTableProps) {
                     <td className="p-3 text-zinc-600 dark:text-zinc-400">{row.s2Hum}%</td>
                   )}
                   {(paramFilter === 'all' || paramFilter === 'pres') && (
-                    <td className="p-3 text-zinc-500">{row.s2Pres}</td>
+                    <td className="p-3 text-zinc-500">{row.s2Press ?? 0}</td>
                   )}
 
                   {/* S3 */}
@@ -345,7 +345,7 @@ export default function RawDataTable({ data, onClear }: RawDataTableProps) {
                     <td className="p-3 text-zinc-600 dark:text-zinc-400">{row.s3Hum}%</td>
                   )}
                   {(paramFilter === 'all' || paramFilter === 'pres') && (
-                    <td className="p-3 text-zinc-500">{row.s3Pres}</td>
+                    <td className="p-3 text-zinc-500">{row.s3Press ?? 0}</td>
                   )}
 
                   {/* S4 */}
@@ -359,7 +359,7 @@ export default function RawDataTable({ data, onClear }: RawDataTableProps) {
                     <td className="p-3 text-zinc-600 dark:text-zinc-400">{row.s4Hum}%</td>
                   )}
                   {(paramFilter === 'all' || paramFilter === 'pres') && (
-                    <td className="p-3 text-zinc-500">{row.s4Pres}</td>
+                    <td className="p-3 text-zinc-500">{row.s4Press ?? 0}</td>
                   )}
                 </tr>
               ))}
