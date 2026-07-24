@@ -1181,15 +1181,7 @@ const handleDeleteDataset = async (id: string) => {
                   </div>
                 </div>
 
-                <div className={currentView === 'Acquisition' ? 'mb-6' : 'hidden'}>
-                  <AcquisitionWizard
-                    onSessionFinished={handleSessionFinished}
-                    isDeviceConnected={isDeviceConnected}
-                    onSetDeviceConnected={setIsDeviceConnected}
-                    activeReadings={activeReadings}
-                    onSetActiveReadings={setActiveReadings}
-                  />
-                </div>
+                {/* Acquisition wizard mount removed from here to avoid duplicate rendering */}
 
                 {/* Switch Workspace Panels with Transitions */}
                 <AnimatePresence mode="wait">
@@ -1263,36 +1255,45 @@ const handleDeleteDataset = async (id: string) => {
                     )}
 
                     {/* CASE 2: ACTIVE CLINICAL ACQUISITION */}
-                    {currentView === 'Acquisition' && (
-                      <div className="space-y-6">
-                        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-                          
-                          {/* Real-Time Live Telemetry Graph on Right during active recording */}
-                          <div className="xl:col-span-4 flex flex-col justify-between h-full space-y-6">
-                            <div className="flex-1">
-                              <LiveCharts data={activeReadings} />
-                            </div>
-                            
-                            {activeReadings.length > 0 && (
-                              <div className="p-4 bg-zinc-100 border border-zinc-200 rounded-2xl text-xs font-sans space-y-1.5">
-                                <span className="font-mono text-[9px] font-bold text-black uppercase block">Active Desorption Metrics</span>
-                                <p className="text-zinc-600 leading-normal">
-                                  Adsorption curve is updating at 1.0Hz. A total of <span className="font-mono font-bold text-black">{activeReadings.length}</span> frames have been recorded in temporary memory.
-                                </p>
-                              </div>
-                            )}
-                          </div>
+                    <div className={currentView === 'Acquisition' ? 'space-y-6' : 'hidden'}>
+                      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
 
+                        {/* 6-Step Wizard (Left column) */}
+                        <div className="xl:col-span-8">
+                          <AcquisitionWizard
+                            onSessionFinished={handleSessionFinished}
+                            isDeviceConnected={isDeviceConnected}
+                            onSetDeviceConnected={setIsDeviceConnected}
+                            activeReadings={activeReadings}
+                            onSetActiveReadings={setActiveReadings}
+                          />
                         </div>
 
-                        {/* Raw table logs displayed at bottom during acquisition */}
-                        {activeReadings.length > 0 && (
-                          <div className="border-t border-zinc-200 pt-6">
-                            <RawDataTable data={activeReadings} onClear={() => setActiveReadings([])} />
+                        {/* Real-Time Live Telemetry Graph on Right during active recording (Right column) */}
+                        <div className="xl:col-span-4 flex flex-col justify-between h-full space-y-6">
+                          <div className="flex-1">
+                            <LiveCharts data={activeReadings} />
                           </div>
-                        )}
+
+                          {activeReadings.length > 0 && (
+                            <div className="p-4 bg-zinc-100 border border-zinc-200 rounded-2xl text-xs font-sans space-y-1.5">
+                              <span className="font-mono text-[9px] font-bold text-black uppercase block">Active Desorption Metrics</span>
+                              <p className="text-zinc-600 leading-normal">
+                                Adsorption curve is updating at 1.0Hz. A total of <span className="font-mono font-bold text-black">{activeReadings.length}</span> frames have been recorded in temporary memory.
+                              </p>
+                            </div>
+                          )}
+                        </div>
+
                       </div>
-                    )}
+
+                      {/* Raw table logs displayed at bottom during acquisition */}
+                      {activeReadings.length > 0 && (
+                        <div className="border-t border-zinc-200 pt-6">
+                          <RawDataTable data={activeReadings} onClear={() => setActiveReadings([])} />
+                        </div>
+                      )}
+                    </div>
 
                     {/* CASE 3: DATASETS DATABASE */}
                     {currentView === 'Datasets' && (
